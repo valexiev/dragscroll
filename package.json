@@ -1,0 +1,19 @@
+{
+  "name": "dragscroll",
+  "version": "0.0.6",
+  "description": "dragscroll\r ==========",
+  "main": "dragscroll.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mikealexander/dragscroll.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mikealexander/dragscroll/issues"
+  },
+  "homepage": "https://github.com/mikealexander/dragscroll#readme"
+}
