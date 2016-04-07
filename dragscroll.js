@@ -51,7 +51,8 @@
                             lastClientX = e.clientX;
                             lastClientY = e.clientY;
 
-                            e.preventDefault();
+                            // Below line caused inputs inside the dragscrollable area to be un-focusable.
+                            //e.preventDefault();
                         }
                     }, 0
                 );
