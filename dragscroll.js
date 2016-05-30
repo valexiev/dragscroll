@@ -26,7 +26,10 @@
     var removeEventListener = 'remove'+EventListener;
 
     var dragged = [];
-    var reset = function(i, el) {
+
+    var isDraggingClass = 'is-dragging';
+
+    function reset(i, el) {
         for (i = 0; i < dragged.length;) {
             el = dragged[i++];
             el = el.container || el;
@@ -37,46 +40,53 @@
 
         // cloning into array since HTMLCollection is updated dynamically
         dragged = [].slice.call(_document.getElementsByClassName('dragscroll'));
+
         for (i = 0; i < dragged.length;) {
             (function(el, lastClientX, lastClientY, pushed, scroller, cont){
-                (cont = el.container || el)[addEventListener](
-                    mousedown,
-                    cont.md = function(e) {
-                        if (!el.hasAttribute('nochilddrag') ||
-                            _document.elementFromPoint(
-                                e.pageX, e.pageY
-                            ) == cont
-                        ) {
-                            pushed = 1;
-                            lastClientX = e.clientX;
-                            lastClientY = e.clientY;
+                var cont = el.container || el;
+                var intervalID;
 
-                            // Below line caused inputs inside the dragscrollable area to be un-focusable.
-                            //e.preventDefault();
-                        }
-                    }, 0
-                );
+                cont[addEventListener](mousedown, cont.md = function(e) {
+                    if (!el.hasAttribute('nochilddrag')
+                        || _document.elementFromPoint(e.pageX, e.pageY) === cont) {
 
-                _window[addEventListener](
-                    mouseup, cont.mu = function() {pushed = 0;}, 0
-                );
+                        pushed = 1;
+                        lastClientX = e.clientX;
+                        lastClientY = e.clientY;
 
-                _window[addEventListener](
-                    mousemove,
-                    cont.mm = function(e) {
-                        if (pushed) {
-                             (scroller = el.scroller||el).scrollLeft -=
-                                 (- lastClientX + (lastClientX=e.clientX));
-                             scroller.scrollTop -=
-                                 (- lastClientY + (lastClientY=e.clientY));
-                        }
-                    }, 0
-                );
+                        // Below line caused inputs inside the dragscrollable area to be un-focusable.
+                        //e.preventDefault();
+
+                        var initClientX = e.clientX;
+                        var initClientY = e.clientY;
+
+                        intervalID = window.setInterval(function() {
+                            if (Math.abs(lastClientX - initClientX) > 10 || Math.abs(lastClientY - initClientY) > 10) {
+                                cont.classList.add(isDraggingClass);
+                                intervalID && _window.clearInterval(intervalID);
+                            }
+                        }, 150);
+                    }
+                }, 0);
+
+                _window[addEventListener](mouseup, cont.mu = function() {
+                    pushed = 0;
+                    cont.classList.remove(isDraggingClass);
+                    intervalID && _window.clearInterval(intervalID);
+                }, 0);
+
+                _window[addEventListener](mousemove, cont.mm = function(e) {
+                    if (pushed) {
+                         var scroller = el.scroller||el;
+                         scroller.scrollLeft -= (- lastClientX + (lastClientX=e.clientX));
+                         scroller.scrollTop -= (- lastClientY + (lastClientY=e.clientY));
+                    }
+                }, 0);
              })(dragged[i++]);
         }
     }
 
-      
+
     if (_document.readyState == 'complete') {
         reset();
     } else {
@@ -85,4 +95,3 @@
 
     exports.reset = reset;
 }));
-
